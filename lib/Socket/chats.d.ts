@@ -1,8 +1,7 @@
 /// <reference types="node" />
-/// <reference types="ws" />
 import { Boom } from '@hapi/boom';
 import { proto } from '../../WAProto';
-import { ChatModification, MessageUpsertType, SocketConfig, WABusinessProfile, WAMediaUpload, WAPatchCreate, WAPresence } from '../Types';
+import { ChatModification, MessageUpsertType, SocketConfig, WABusinessProfile, WAMediaUpload, WAPatchCreate, WAPresence, WAPrivacyOnlineValue, WAPrivacyValue, WAReadReceiptsValue } from '../Types';
 import { BinaryNode } from '../WABinary';
 export declare const makeChatsSocket: (config: SocketConfig) => {
     processingMutex: {
@@ -26,14 +25,27 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
         setAt: Date;
     } | undefined>;
     updateProfilePicture: (jid: string, content: WAMediaUpload) => Promise<void>;
+    removeProfilePicture: (jid: string) => Promise<void>;
     updateProfileStatus: (status: string) => Promise<void>;
     updateProfileName: (name: string) => Promise<void>;
     updateBlockStatus: (jid: string, action: 'block' | 'unblock') => Promise<void>;
+    updateLastSeenPrivacy: (value: WAPrivacyValue) => Promise<void>;
+    updateOnlinePrivacy: (value: WAPrivacyOnlineValue) => Promise<void>;
+    updateProfilePicturePrivacy: (value: WAPrivacyValue) => Promise<void>;
+    updateStatusPrivacy: (value: WAPrivacyValue) => Promise<void>;
+    updateReadReceiptsPrivacy: (value: WAReadReceiptsValue) => Promise<void>;
+    updateGroupsAddPrivacy: (value: WAPrivacyValue) => Promise<void>;
+    updateDefaultDisappearingMode: (duration: number) => Promise<void>;
     getBusinessProfile: (jid: string) => Promise<WABusinessProfile | void>;
     resyncAppState: (collections: readonly ("critical_block" | "critical_unblock_low" | "regular_high" | "regular_low" | "regular")[], isInitialSync: boolean) => Promise<void>;
     chatModify: (mod: ChatModification, jid: string) => Promise<void>;
+    cleanDirtyBits: (type: 'account_sync' | 'groups', fromTimestamp?: string | number | undefined) => Promise<void>;
+    addChatLabel: (jid: string, labelId: string) => Promise<void>;
+    removeChatLabel: (jid: string, labelId: string) => Promise<void>;
+    addMessageLabel: (jid: string, messageId: string, labelId: string) => Promise<void>;
+    removeMessageLabel: (jid: string, messageId: string, labelId: string) => Promise<void>;
     type: "md";
-    ws: import("ws");
+    ws: import("./Client").MobileSocketClient | import("./Client").WebSocketClient;
     ev: import("../Types").BaileysEventEmitter & {
         process(handler: (events: Partial<import("../Types").BaileysEventMap>) => void | Promise<void>): () => void;
         buffer(): void;

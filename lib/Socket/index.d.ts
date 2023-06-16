@@ -1,7 +1,8 @@
 /// <reference types="node" />
-/// <reference types="ws" />
 import { UserFacingSocketConfig } from '../Types';
 declare const makeWASocket: (config: UserFacingSocketConfig) => {
+    register: (code: string) => Promise<import("./registration").ExistsResponse>;
+    requestRegistrationCode: (registrationOptions?: import("./registration").RegistrationOptions | undefined) => Promise<import("./registration").ExistsResponse>;
     getOrderDetails: (orderId: string, tokenBase64: string) => Promise<import("../Types").OrderDetails>;
     getCatalog: ({ jid, limit, cursor }: import("../Types").GetCatalogOptions) => Promise<{
         products: import("../Types").Product[];
@@ -35,6 +36,13 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     groupCreate: (subject: string, participants: string[]) => Promise<import("../Types").GroupMetadata>;
     groupLeave: (id: string) => Promise<void>;
     groupUpdateSubject: (jid: string, subject: string) => Promise<void>;
+    groupRequestParticipantsList: (jid: string) => Promise<{
+        [key: string]: string;
+    }[]>;
+    groupRequestParticipantsUpdate: (jid: string, participants: string[], action: "reject" | "approve") => Promise<{
+        status: string;
+        jid: string;
+    }[]>;
     groupParticipantsUpdate: (jid: string, participants: string[], action: import("../Types").ParticipantAction) => Promise<{
         status: string;
         jid: string;
@@ -68,14 +76,27 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
         setAt: Date;
     } | undefined>;
     updateProfilePicture: (jid: string, content: import("../Types").WAMediaUpload) => Promise<void>;
+    removeProfilePicture: (jid: string) => Promise<void>;
     updateProfileStatus: (status: string) => Promise<void>;
     updateProfileName: (name: string) => Promise<void>;
     updateBlockStatus: (jid: string, action: "block" | "unblock") => Promise<void>;
+    updateLastSeenPrivacy: (value: import("../Types").WAPrivacyValue) => Promise<void>;
+    updateOnlinePrivacy: (value: import("../Types").WAPrivacyOnlineValue) => Promise<void>;
+    updateProfilePicturePrivacy: (value: import("../Types").WAPrivacyValue) => Promise<void>;
+    updateStatusPrivacy: (value: import("../Types").WAPrivacyValue) => Promise<void>;
+    updateReadReceiptsPrivacy: (value: import("../Types").WAReadReceiptsValue) => Promise<void>;
+    updateGroupsAddPrivacy: (value: import("../Types").WAPrivacyValue) => Promise<void>;
+    updateDefaultDisappearingMode: (duration: number) => Promise<void>;
     getBusinessProfile: (jid: string) => Promise<void | import("../Types").WABusinessProfile>;
     resyncAppState: (collections: readonly ("critical_block" | "critical_unblock_low" | "regular_high" | "regular_low" | "regular")[], isInitialSync: boolean) => Promise<void>;
     chatModify: (mod: import("../Types").ChatModification, jid: string) => Promise<void>;
+    cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: string | number | undefined) => Promise<void>;
+    addChatLabel: (jid: string, labelId: string) => Promise<void>;
+    removeChatLabel: (jid: string, labelId: string) => Promise<void>;
+    addMessageLabel: (jid: string, messageId: string, labelId: string) => Promise<void>;
+    removeMessageLabel: (jid: string, messageId: string, labelId: string) => Promise<void>;
     type: "md";
-    ws: import("ws");
+    ws: import("./Client").MobileSocketClient | import("./Client").WebSocketClient;
     ev: import("../Types").BaileysEventEmitter & {
         process(handler: (events: Partial<import("../Types").BaileysEventMap>) => void | Promise<void>): () => void;
         buffer(): void;

@@ -54,6 +54,10 @@ declare type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
     mentions?: string[];
 };
+declare type Contextable = {
+    /** add contextInfo to the message */
+    contextInfo?: proto.IContextInfo;
+};
 declare type ViewOnce = {
     viewOnce?: boolean;
 };
@@ -65,6 +69,9 @@ declare type Templatable = {
     /** add buttons to the message (conflicts with normal buttons)*/
     templateButtons?: proto.IHydratedTemplateButton[];
     footer?: string;
+};
+declare type Editable = {
+    edit?: WAMessageKey;
 };
 declare type Listable = {
     /** Sections of the List */
@@ -90,12 +97,12 @@ export declare type AnyMediaMessageContent = (({
     image: WAMediaUpload;
     caption?: string;
     jpegThumbnail?: string;
-} & Mentionable & Buttonable & Templatable & WithDimensions) | ({
+} & Mentionable & Contextable & Buttonable & Templatable & WithDimensions) | ({
     video: WAMediaUpload;
     caption?: string;
     gifPlayback?: boolean;
     jpegThumbnail?: string;
-} & Mentionable & Buttonable & Templatable & WithDimensions) | {
+} & Mentionable & Contextable & Buttonable & Templatable & WithDimensions) | {
     audio: WAMediaUpload;
     /** if set to true, will send as a `voice note` */
     ptt?: boolean;
@@ -109,9 +116,9 @@ export declare type AnyMediaMessageContent = (({
     mimetype: string;
     fileName?: string;
     caption?: string;
-} & Buttonable & Templatable)) & {
+} & Contextable & Buttonable & Templatable)) & {
     mimetype?: string;
-};
+} & Editable;
 export declare type ButtonReplyInfo = {
     displayText: string;
     id: string;
@@ -123,9 +130,9 @@ export declare type WASendableProduct = Omit<proto.Message.ProductMessage.IProdu
 export declare type AnyRegularMessageContent = (({
     text: string;
     linkPreview?: WAUrlInfo | null;
-} & Mentionable & Buttonable & Templatable & Listable) | AnyMediaMessageContent | ({
+} & Mentionable & Contextable & Buttonable & Templatable & Listable & Editable) | AnyMediaMessageContent | ({
     poll: PollMessageOptions;
-} & Mentionable & Buttonable & Templatable) | {
+} & Mentionable & Contextable & Buttonable & Templatable & Editable) | {
     contacts: {
         displayName?: string;
         contacts: proto.Message.IContactMessage[];
